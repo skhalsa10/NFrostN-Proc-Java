@@ -2,10 +2,8 @@ import java.io.IOException;
 import java.util.Random;
 
 public class NFrostN {
-
+  //declare variables
   private float scale;
-
-  //declare member fields
   //holds width argument
   private int gridWidth;
   //holds height argument
@@ -20,8 +18,6 @@ public class NFrostN {
   private int filled = 0;
   //declare random
   private Random ran;
-  //private int backColor = 0;
-  //private int frostColor = #CEFDFF;
   private int frostColor = 255;
 
   //declare diffusion variables
@@ -33,11 +29,14 @@ public class NFrostN {
 
 
 
-
+/**
+this is the constructor it takes a width and height for grid. the density of particles to the full grid before the algorithm stops
+a seed for the random number generator 0 picks random seed. the scale is how big the particle is drawn.
+**/
   public NFrostN(int gridWidth, int gridHeight, int particleDensity, int seed, float scale) {
     //initialize  everything!
-    this.gridWidth = gridWidth;
-    this.gridHeight = gridHeight;
+    this.gridWidth = (int)(gridWidth/scale);
+    this.gridHeight = (int)(gridHeight/scale);
     this.particleDensity = particleDensity;
     this.seed = seed;
     this.scale = scale;
@@ -58,21 +57,20 @@ public class NFrostN {
     }
   }
 
-  public void diffuseQuick() {
+  //this will fully diffuse a new particle until it runs out
+  //of steps or finds another particle to stick to
+  public void diffuseParticle() {
     //check if this is the beginning of new diffusion
     if (beginDiffuse) {
       beginDiffuse = false;
       diffuseW = ran.nextInt(gridWidth);
       diffuseH = ran.nextInt(gridHeight);
       remainingSteps = (2*(gridWidth * gridHeight));
-      //print(remainingSteps);
-      //remainingSteps = 1000;
       //the random startw and starth needs to be empty
       while (!isEmpty(diffuseW, diffuseH)) {
         diffuseW = ran.nextInt(gridWidth);
         diffuseH = ran.nextInt(gridHeight);
       }
-      //return;
     }
 
     while (remainingSteps > 0) {
@@ -81,6 +79,7 @@ public class NFrostN {
         beginDiffuse = true;
         grid[diffuseW][diffuseH] = true;
         filled++;
+        //drawing this circle makes a sparkling affect when the particle sticks
         fill(frostColor);
         circle(diffuseW*scale, diffuseH*scale, scale+5);
         return;
@@ -88,7 +87,7 @@ public class NFrostN {
 
       moveParticle();
 
-      //uncomment the following to the see the path the particle diffuses the 
+      //uncomment the following to the see the path the particle diffuses the
       //transparancy makes it darker in the locations visited more than once. it looks awfully familiar... almost like land.
       //could this be a way to procedurally generate some land?
       //if(keyPressed){
@@ -102,53 +101,8 @@ public class NFrostN {
     beginDiffuse = true;
     grid[diffuseW][diffuseH] = true;
     filled++;
-    fill(frostColor);
-    circle(diffuseW*scale, diffuseH*scale, scale);
   }
 
-  //this will step through the diffusion step
-  public void diffuseVerbose() {
-    //check if this is the beginning of new diffusion
-    if (beginDiffuse) {
-      beginDiffuse = false;
-      diffuseW = ran.nextInt(gridWidth);
-      diffuseH = ran.nextInt(gridHeight);
-      remainingSteps = (2*(gridWidth * gridHeight));
-      //print(remainingSteps);
-      //remainingSteps = 1000;
-      //the random startw and starth needs to be empty
-      while (!isEmpty(diffuseW, diffuseH)) {
-        diffuseW = ran.nextInt(gridWidth);
-        diffuseH = ran.nextInt(gridHeight);
-      }
-      fill(frostColor);
-      circle(diffuseW*scale, diffuseH*scale, scale);
-      return;
-    }
-
-    if (remainingSteps > 0) {
-      //check if the particle can stick
-      if (checkNeighbors()) {
-        beginDiffuse = true;
-        grid[diffuseW][diffuseH] = true;
-        fill(frostColor);
-        circle(diffuseW*scale, diffuseH*scale, scale);
-        return;
-      }
-
-      moveParticle();
-
-      fill(frostColor);
-      circle(diffuseW*scale, diffuseH*scale, scale);
-      remainingSteps--;
-      return;
-    }
-    //if we reached here it has diffused until it ran out of energy
-    beginDiffuse = true;
-    grid[diffuseW][diffuseH] = true;
-    fill(frostColor);
-    circle(diffuseW*scale, diffuseH*scale, scale);
-  }
 
   private void moveParticle() {
     diffuseDir = ran.nextInt(4);
@@ -198,7 +152,7 @@ public class NFrostN {
     }
   }
 
-
+//this will check if a neighbor north west south or east are turned on.
   private boolean checkNeighbors() {
     if (checkNorth()) {
       return true;
@@ -212,89 +166,9 @@ public class NFrostN {
     if (checkWest()) {
       return true;
     }
-    /*if (checkNE()) {
-      return true;
-    }
-    if (checkSE()) {
-      return true;
-    }
-    if (checkNW()) {
-      return true;
-    }
-    if (checkSW()) {
-      return true;
-    }*/
-
     return false;
   }
 
-  private boolean checkNE() {
-    //check corner case 1
-    if (diffuseH == 0 && diffuseW == (gridWidth-1)) {
-      return grid[0][(gridHeight-1)];
-    }
-    //now check corner case for only h =0
-    if (diffuseH ==0) {
-      return grid[diffuseW+1][gridHeight-1];
-    }
-    //last corner case for if we are on right edge
-    if (diffuseW == (gridWidth-1)) {
-      return grid[0][(diffuseH-1)];
-    }
-
-    return grid[(diffuseW+1)][(diffuseH-1)];
-  }
-
-  private boolean checkSE() {
-    //check corner case 1
-    if (diffuseH == gridHeight-1 && diffuseW == (gridWidth-1)) {
-      return grid[0][0];
-    }
-    //now check corner case for only h =0
-    if (diffuseH ==gridHeight-1) {
-      return grid[diffuseW+1][0];
-    }
-    //last corner case for if we are on right edge
-    if (diffuseW == (gridWidth-1)) {
-      return grid[0][(diffuseH+1)];
-    }
-
-    return grid[(diffuseW+1)][(diffuseH+1)];
-  }
-
-  private boolean checkSW() {
-    //check corner case 1
-    if (diffuseH == gridHeight-1 && diffuseW == 0) {
-      return grid[(gridWidth-1)][0];
-    }
-    //now check corner case for only h =0
-    if (diffuseH ==gridHeight-1) {
-      return grid[diffuseW-1][0];
-    }
-    //last corner case for if we are on right edge
-    if (diffuseW == 0) {
-      return grid[(gridWidth-1)][(diffuseH+1)];
-    }
-
-    return grid[(diffuseW-1)][(diffuseH+1)];
-  }
-
-  private boolean checkNW() {
-    //check corner case 1
-    if (diffuseH == 0 && diffuseW == 0) {
-      return grid[(gridWidth-1)][gridHeight-1];
-    }
-    //now check corner case for only h
-    if (diffuseH ==0) {
-      return grid[diffuseW-1][gridHeight-1];
-    }
-    //last corner case for if we are on right edge
-    if (diffuseW == 0) {
-      return grid[(gridWidth-1)][(diffuseH-1)];
-    }
-
-    return grid[(diffuseW-1)][(diffuseH-1)];
-  }
 
   /**
    * @return returns true if pixel up is on
@@ -302,18 +176,10 @@ public class NFrostN {
   private boolean checkNorth() {
     //if at the top wrap to bottom
     if (diffuseH == 0) {
-      if (grid[diffuseW][(gridHeight-1)]) {
-        return true;
-      } else if (grid[diffuseW][(gridHeight-1)]==false) {
-        return false;
-      }
+      return grid[diffuseW][(gridHeight-1)];
     }
     //else check pixel above
-    if (grid[diffuseW][(diffuseH-1)]== true) {
-      return true;
-    } else {
-      return false;
-    }
+    return grid[diffuseW][(diffuseH-1)];
   }
 
   /**
@@ -322,18 +188,10 @@ public class NFrostN {
   private boolean checkEast() {
     //if at the right edge wrap to left
     if (diffuseW == (gridWidth-1)) {
-      if (grid[0][(diffuseH)]==true) {
-        return true;
-      } else if (grid[0][(diffuseH)]==false) {
-        return false;
-      }
+      return grid[0][(diffuseH)];
     }
     //else check pixel right
-    if (grid[(diffuseW+1)][(diffuseH)]== true) {
-      return true;
-    } else {
-      return false;
-    }
+    return grid[(diffuseW+1)][(diffuseH)];
   }
 
   /**
@@ -342,18 +200,10 @@ public class NFrostN {
   private boolean checkWest() {
     //if at the left wrap to the right
     if (diffuseW == 0) {
-      if (grid[gridWidth-1][(diffuseH)]==true) {
-        return true;
-      } else if (grid[gridWidth-1][(diffuseH)]==false) {
-        return false;
-      }
+      return grid[gridWidth-1][(diffuseH)];
     }
     //else check pixel left
-    if (grid[(diffuseW-1)][diffuseH]== true) {
-      return true;
-    } else {
-      return false;
-    }
+    return grid[(diffuseW-1)][diffuseH];
   }
 
   /**
@@ -362,18 +212,10 @@ public class NFrostN {
   private boolean checkSouth() {
     //if at the bottom wrap to top
     if (diffuseH == (gridHeight-1)) {
-      if (grid[diffuseW][(0)]==true) {
-        return true;
-      } else if (grid[diffuseW][(0)]==false) {
-        return false;
-      }
+      return grid[diffuseW][(0)];
     }
     //else check pixel below
-    if (grid[diffuseW][(diffuseH+1)]== true) {
-      return true;
-    } else {
-      return false;
-    }
+    return grid[diffuseW][(diffuseH+1)];
   }
 
   //returns true if the cell at w, h is empty
@@ -386,21 +228,15 @@ public class NFrostN {
     return (100*((double)filled/(gridWidth*gridHeight))>= particleDensity);
   }
 
+  //This will iterate through the 2d array and draw each element that is on
   public void renderGrid() {
     fill(frostColor);
-    //blendMode(SCREEN);
-
-    //int onCount = 0;
     for (int i = 0; i<gridWidth; i++) {
       for (int j = 0; j<gridHeight; j++) {
         if (grid[i][j] == true) {
-          fill(frostColor);
-          //circle(i*scale, j*scale, scale+1);
           square(i*scale, j*scale, scale);
-          //onCount++;
         }
       }
     }
-    //println(onCount);
   }
 }
