@@ -24,4 +24,5 @@ void draw(){
   background(0);
   nFrostN.renderGrid();
   nFrostN.diffuseParticle();
+  noLoop();
 }

@@ -91,8 +91,8 @@ a seed for the random number generator 0 picks random seed. the scale is how big
       //transparancy makes it darker in the locations visited more than once. it looks awfully familiar... almost like land.
       //could this be a way to procedurally generate some land?
       //if(keyPressed){
-      //fill(frostColor,50);
-      //circle(diffuseW*scale, diffuseH*scale, scale);
+      fill(frostColor,50);
+      circle(diffuseW*scale, diffuseH*scale, scale);
       //}
       remainingSteps--;
 

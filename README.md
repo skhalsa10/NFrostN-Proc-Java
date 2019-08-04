@@ -22,4 +22,18 @@ This is what the finished animation will look like:
 
 ![](images/NFrostNFinish.png)  
 
-Looks really cool huh! Here is the general information about the
+Looks really cool huh! Here is the general information about the program:
+
+- 2D Array to keep track of weather the pixel/cell is on or off.
+- particle will diffuse from a random cell that is off
+- Particle will perform a random walk either north, south, east, or west.
+- it will perform this walk for either 2*(gridWidth * gridHeight) times oruntil it is north, south, east, or west of another particle. If one of these are met the particle will stick and permanently get added to the grid.
+- every time a particle  sticks a counter will increment. the counter will be divided by total cells to get percentage of filled cells. if it is above the parameter particleDensity it will stop diffusing new particles.  
+
+That is it! pretty simple huh!! download and have fun playing around with it. one particular thing I noticed was when
+drawing every cell one particle travels until it sticks makes for an interesting pattern. I gave the cell some some
+transparency to see when a cell is traveled more that once. check it out below:
+
+ It looks like land or a cloud or something really freaking cool huh!!!??? play around with it by uncommenting it  on lines 90 through 96 in NFrostN.pde  
+
+![](images/particlePath.png)  
